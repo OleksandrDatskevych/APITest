@@ -23,7 +23,8 @@ namespace APITest.HttpClients
 
     public class RestResponse<T> : RestResponse where T : class
     {
-        public T ResponseModel { get; }
+        public T? ResponseModel { get; }
+
         public RestResponse(HttpResponseMessage responseMessage) : base(responseMessage)
         {
             ResponseModel = JsonConvert.DeserializeObject<T>(ResponseData);

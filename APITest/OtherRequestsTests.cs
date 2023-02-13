@@ -1,7 +1,5 @@
 ﻿using System.Net;
-using System.Text;
 using NUnit.Framework;
-using Newtonsoft.Json;
 using APITest.JsonModels;
 using APITest.HttpClients;
 
@@ -21,9 +19,7 @@ namespace APITest
                 Job = "Accountant",
                 Name = "Bill"
             };
-            var userJson = JsonConvert.SerializeObject(userToUpdate);
-            var content = new StringContent(userJson, Encoding.UTF8, JsonMediaType);
-            var response = MyHttpClient.PutRequest<UpdateResponse>(url, content, null);
+            var response = MyHttpClient.PutRequest<UserInfo, UpdateResponse>(url, userToUpdate, null);
             TestContext.WriteLine($"{response.ResponseModel.Name} {response.ResponseModel.Job} {response.ResponseModel.UpdatedAt}");
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual(userToUpdate.Name, response.ResponseModel.Name);
@@ -38,9 +34,7 @@ namespace APITest
                 Job = "JobName",
                 Name = "Joe"
             };
-            var userJson = JsonConvert.SerializeObject(userToUpdate);
-            var content = new StringContent(userJson, Encoding.UTF8, JsonMediaType);
-            var response = MyHttpClient.PatchRequest<UpdateResponse>(url, content, null);
+            var response = MyHttpClient.PatchRequest<UserInfo, UpdateResponse>(url, userToUpdate, null);
             TestContext.WriteLine($"{response.ResponseModel.Name} {response.ResponseModel.Job} {response.ResponseModel.UpdatedAt}");
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             Assert.AreEqual(userToUpdate.Name, response.ResponseModel.Name);

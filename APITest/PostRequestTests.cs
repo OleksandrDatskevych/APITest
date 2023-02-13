@@ -1,8 +1,6 @@
 ﻿using APITest.JsonModels;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Net;
-using System.Text;
 using APITest.HttpClients;
 
 namespace APITest
@@ -83,10 +81,10 @@ namespace APITest
                 Email = "eve.holt@reqres.in",
                 Password = "pass"
             };
-            var responseResult = MyHttpClient.PostRequest<UserCredentials, LoginResponse>(url, userToLogin, null);
-            Assert.AreEqual(HttpStatusCode.OK, responseResult.StatusCode);
-            Assert.IsNotNull(responseResult.ResponseModel.Token);
-            TestContext.WriteLine($"Token: {responseResult.ResponseModel.Token}");
+            var response = MyHttpClient.PostRequest<UserCredentials, LoginResponse>(url, userToLogin, null);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.IsNotNull(response.ResponseModel.Token);
+            TestContext.WriteLine($"Token: {response.ResponseModel.Token}");
         }
 
         [Test]
@@ -97,10 +95,10 @@ namespace APITest
             {
                 Email = "peter@kl"
             };
-            var responseResult = MyHttpClient.PostRequest<UserCredentials, LoginResponse>(url, userToLogin, null);
-            Assert.AreEqual(HttpStatusCode.BadRequest, responseResult.StatusCode);
-            Assert.IsNotNull(responseResult.ResponseModel.Error);
-            TestContext.WriteLine($"Error: {responseResult.ResponseModel.Error}");
+            var response = MyHttpClient.PostRequest<UserCredentials, LoginResponse>(url, userToLogin, null);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.IsNotNull(response.ResponseModel.Error);
+            TestContext.WriteLine($"Error: {response.ResponseModel.Error}");
         }
     }
 }

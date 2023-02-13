@@ -37,9 +37,29 @@ namespace APITest.HttpClients
         public static RestResponse<T>? PatchRequest<T>(string requestUrl, HttpContent httpContent, Dictionary<string, string>? headers)
             where T : class => SendRequest<T>(requestUrl, HttpMethod.Patch, httpContent, headers);
 
-        public static RestResponse<TResponse>?
-            PostRequest<TRequest, TResponse>(string requestUrl, TRequest requestModel, Dictionary<string, string>? headers)
-            where TRequest : class where TResponse : class => SendRequest<TRequest, TResponse>(requestUrl, HttpMethod.Post, requestModel, headers);
+        public static RestResponse<TResponse> PostRequest<TRequest, TResponse>(
+            string requestUrl, 
+            TRequest requestModel, 
+            Dictionary<string, string>? headers)
+            where TRequest : class
+            where TResponse : class => 
+            SendRequest<TRequest, TResponse>(requestUrl, HttpMethod.Post, requestModel, headers);
+
+        public static RestResponse<TResponse> PutRequest<TRequest, TResponse>(
+            string requestUrl,
+            TRequest requestModel,
+            Dictionary<string, string>? headers)
+            where TRequest : class
+            where TResponse : class => 
+            SendRequest<TRequest, TResponse>(requestUrl, HttpMethod.Put, requestModel, headers);
+
+        public static RestResponse<TResponse> PatchRequest<TRequest, TResponse>(
+            string requestUrl,
+            TRequest requestModel,
+            Dictionary<string, string>? headers)
+            where TRequest : class
+            where TResponse : class =>
+            SendRequest<TRequest, TResponse>(requestUrl, HttpMethod.Patch, requestModel, headers);
 
         private static HttpClient CreateHttpClient(Dictionary<string, string>? headers)
         {
@@ -70,7 +90,8 @@ namespace APITest.HttpClients
             return httpRequestMessage;
         }
 
-        private static RestResponse SendRequest(string requestUrl, HttpMethod httpMethod, HttpContent? httpContent, Dictionary<string, string>? headers)
+        private static RestResponse SendRequest(string requestUrl, HttpMethod httpMethod, HttpContent? httpContent, 
+            Dictionary<string, string>? headers)
         {
             _httpClient = CreateHttpClient(headers);
             _httpRequestMessage = CreateHttpRequestMessage(requestUrl, httpMethod, httpContent);
@@ -117,7 +138,7 @@ namespace APITest.HttpClients
             return _restResponse as RestResponse<T>;
         }
 
-        private static RestResponse<TResponse>? SendRequest<TRequest, TResponse>(string requestUrl, HttpMethod httpMethod, TRequest requestModel,
+        private static RestResponse<TResponse> SendRequest<TRequest, TResponse>(string requestUrl, HttpMethod httpMethod, TRequest requestModel,
             Dictionary<string, string>? headers) where TResponse : class where TRequest : class
         {
             _httpClient = CreateHttpClient(headers);
