@@ -3,26 +3,13 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Net;
 using System.Text;
+using APITest.HttpClients;
 
 namespace APITest
 {
-    [TestFixture, Parallelizable(ParallelScope.Children)]
+    [TestFixture]
     public class PostRequestTests
     {
-        private HttpClient _httpClient;
-        private const string JsonMediaType = "application/json";
-
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _httpClient = new HttpClient();
-        }
-
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-        }
-
         [Test]
         public void UserCreate()
         {
@@ -32,13 +19,13 @@ namespace APITest
                 Job = "Unknown",
                 Name = "John"
             };
-            var userJson = JsonConvert.SerializeObject(userToCreate);
-            var content = new StringContent(userJson, Encoding.UTF8, JsonMediaType);
-            var response = _httpClient.PostAsync(url, content);
-            var responseContent = JsonConvert.DeserializeObject<CreateResponse>(response.Result.Content.ReadAsStringAsync().Result);
-            Assert.AreEqual(HttpStatusCode.Created, response.Result.StatusCode);
-            TestContext.WriteLine($"{responseContent.Id} {responseContent.Name} {responseContent.Job} {responseContent.CreatedAt}");
-            var responseTime = response.Result.Headers.Date - responseContent.CreatedAt;
+            var response = MyHttpClient.PostRequest<UserInfo, CreateResponse>(url, userToCreate, null);
+            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+            Assert.IsNotNull(response.ResponseModel.Id);
+            Assert.IsNotNull(response.ResponseModel.CreatedAt);
+            TestContext.WriteLine($"{response.ResponseModel.Id} {response.ResponseModel.Name} {response.ResponseModel.Job} " +
+                                  $"{response.ResponseModel.CreatedAt}");
+            var responseTime = response.ResponseHeaders.Date - response.ResponseModel.CreatedAt;
             Assert.True(responseTime < TimeSpan.FromSeconds(1));
             TestContext.WriteLine(responseTime);
         }
@@ -52,12 +39,11 @@ namespace APITest
                 Email = "eve.holt@reqres.in",
                 Password = "pass"
             };
-            var registerJson = JsonConvert.SerializeObject(userToRegister);
-            var content = new StringContent(registerJson, Encoding.UTF8, JsonMediaType);
-            var response = _httpClient.PostAsync(url, content).Result;
+            var response = MyHttpClient.PostRequest<UserCredentials, RegisterResponse>(url, userToRegister, null);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            var responseContent = JsonConvert.DeserializeObject<RegisterResponse>(response.Content.ReadAsStringAsync().Result);
-            TestContext.WriteLine($"{responseContent.Id} {responseContent.Token}");
+            Assert.IsNotNull(response.ResponseModel.Id);
+            Assert.IsNotNull(response.ResponseModel.Token);
+            TestContext.WriteLine($"{response.ResponseModel.Id} {response.ResponseModel.Token}");
         }
 
         [Test]
@@ -68,27 +54,24 @@ namespace APITest
             {
                 Email = "sydney@fife"
             };
-            var registerJson = JsonConvert.SerializeObject(userToRegister);
-            var content = new StringContent(registerJson, Encoding.UTF8, JsonMediaType);
-            var response = _httpClient.PostAsync(url, content).Result;
+            var response = MyHttpClient.PostRequest<UserCredentials, RegisterResponse>(url, userToRegister, null);
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.IsNotNull(response.ResponseModel.Error);
+            TestContext.WriteLine(response.ResponseModel.Error);
         }
 
         [Test]
-        public void PutRequest()
+        public void RegisterUserNegative2()
         {
-            var url = "https://reqres.in/api/users/2";
-            var userToUpdate = new UserInfo
+            var url = "https://reqres.in/api/register";
+            var userToRegister = new UserCredentials
             {
-                Job = "Accountant",
-                Name = "Bill"
+                Email = "eve.holt@reqres.in"
             };
-            var userJson = JsonConvert.SerializeObject(userToUpdate);
-            var content = new StringContent(userJson, Encoding.UTF8, JsonMediaType);
-            var response = _httpClient.PutAsync(url, content);
-            var responseContent = JsonConvert.DeserializeObject<UpdateResponse>(response.Result.Content.ReadAsStringAsync().Result);
-            TestContext.WriteLine($"{responseContent.Name} {responseContent.Job} {responseContent.UpdatedAt}");
-            Assert.AreEqual(HttpStatusCode.OK, response.Result.StatusCode);
+            var response = MyHttpClient.PostRequest<UserCredentials, RegisterResponse>(url, userToRegister, null);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.IsNotNull(response.ResponseModel.Error);
+            TestContext.WriteLine(response.ResponseModel.Error);
         }
 
         [Test]
@@ -100,10 +83,10 @@ namespace APITest
                 Email = "eve.holt@reqres.in",
                 Password = "pass"
             };
-            var userJson = JsonConvert.SerializeObject(userToLogin);
-            var content = new StringContent(userJson, Encoding.UTF8, JsonMediaType);
-            var responseResult = _httpClient.PostAsync(url, content).Result;
+            var responseResult = MyHttpClient.PostRequest<UserCredentials, LoginResponse>(url, userToLogin, null);
             Assert.AreEqual(HttpStatusCode.OK, responseResult.StatusCode);
+            Assert.IsNotNull(responseResult.ResponseModel.Token);
+            TestContext.WriteLine($"Token: {responseResult.ResponseModel.Token}");
         }
 
         [Test]
@@ -114,10 +97,10 @@ namespace APITest
             {
                 Email = "peter@kl"
             };
-            var userJson = JsonConvert.SerializeObject(userToLogin);
-            var content = new StringContent(userJson, Encoding.UTF8, JsonMediaType);
-            var responseResult = _httpClient.PostAsync(url, content).Result;
+            var responseResult = MyHttpClient.PostRequest<UserCredentials, LoginResponse>(url, userToLogin, null);
             Assert.AreEqual(HttpStatusCode.BadRequest, responseResult.StatusCode);
+            Assert.IsNotNull(responseResult.ResponseModel.Error);
+            TestContext.WriteLine($"Error: {responseResult.ResponseModel.Error}");
         }
     }
 }

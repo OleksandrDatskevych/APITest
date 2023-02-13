@@ -2,11 +2,8 @@
 
 namespace APITest.JsonModels
 {
-    public class RegisterResponse
+    public class LoginResponse
     {
-        [JsonProperty("id")]
-        public int? Id { get; set; }
-
         [JsonProperty("token")]
         public string Token { get; set; }
 
